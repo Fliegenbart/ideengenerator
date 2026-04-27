@@ -19,6 +19,7 @@ SignalIdeas researches a niche, normalizes market/community signals, clusters re
 - Evidence drawer with source snippets
 - Idea detail pages with MVP scope, monetization, GTM, competitors, validation plan, risks, and 7-day plan
 - Idea refinement actions for cheaper build, B2B, consumer, narrow niche, landing copy, MVP list, Reddit post, cold email, and ads
+- Team execution page at `/execution` with owner, status, priority, progress, blockers, and next step tracking
 - Isolated Last30Days adapter boundary
 
 ## Local Setup
@@ -78,6 +79,7 @@ npm run seed
 
 - Replace the demo auth adapter in `src/lib/auth.ts` with Auth.js or Clerk session lookup.
 - Replace the in-memory demo store with Prisma reads/writes for multi-user persistence.
+- Connect Team, TeamMember, IdeaExecution, and ExecutionUpdate models to real auth roles before inviting external teammates.
 - Configure a real PostgreSQL `DATABASE_URL`.
 - Configure Last30Days via API or command if available.
 - Add real OpenAI-compatible provider credentials when replacing deterministic local generators.

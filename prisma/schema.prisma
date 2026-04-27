@@ -71,34 +71,34 @@ model Signal {
 }
 
 model ProblemCluster {
-  id                    String      @id
-  researchRunId          String
-  researchRun            ResearchRun @relation(fields: [researchRunId], references: [id], onDelete: Cascade)
-  label                 String
-  problem               String
-  audience              String
-  signalIds             String[]
-  signalCount           Int
-  averageEngagement     Float
-  averageRecencyDays    Float
-  painIntensity         Float
-  frequency             Float
-  willingnessToPay      Float
-  currentWorkarounds    String[]
-  jobsToBeDone          String[]
-  segments              String[]
-  keywords              String[]
-  ideas                 Idea[]
+  id                 String      @id
+  researchRunId      String
+  researchRun        ResearchRun @relation(fields: [researchRunId], references: [id], onDelete: Cascade)
+  label              String
+  problem            String
+  audience           String
+  signalIds          String[]
+  signalCount        Int
+  averageEngagement  Float
+  averageRecencyDays Float
+  painIntensity      Float
+  frequency          Float
+  willingnessToPay   Float
+  currentWorkarounds String[]
+  jobsToBeDone       String[]
+  segments           String[]
+  keywords           String[]
+  ideas              Idea[]
 }
 
 model Idea {
   id                   String           @id
   userId               String?
   user                 User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
-  researchRunId         String
-  researchRun           ResearchRun      @relation(fields: [researchRunId], references: [id], onDelete: Cascade)
-  problemClusterId      String
-  problemCluster        ProblemCluster   @relation(fields: [problemClusterId], references: [id], onDelete: Cascade)
+  researchRunId        String
+  researchRun          ResearchRun      @relation(fields: [researchRunId], references: [id], onDelete: Cascade)
+  problemClusterId     String
+  problemCluster       ProblemCluster   @relation(fields: [problemClusterId], references: [id], onDelete: Cascade)
   title                String
   oneLiner             String
   audience             String
@@ -123,16 +123,17 @@ model Idea {
   score                IdeaScore?
   refinements          IdeaRefinement[]
   citations            SourceCitation[]
+  executions           IdeaExecution[]
 }
 
 model IdeaScore {
-  id          String   @id @default(cuid())
-  ideaId      String   @unique
-  idea        Idea     @relation(fields: [ideaId], references: [id], onDelete: Cascade)
-  total       Int
-  components  Json
-  summary     String
-  createdAt   DateTime @default(now())
+  id         String   @id @default(cuid())
+  ideaId     String   @unique
+  idea       Idea     @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+  total      Int
+  components Json
+  summary    String
+  createdAt  DateTime @default(now())
 }
 
 model IdeaRefinement {
@@ -146,13 +147,67 @@ model IdeaRefinement {
 }
 
 model SourceCitation {
-  id        String  @id @default(cuid())
+  id        String @id @default(cuid())
   ideaId    String
-  idea      Idea    @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+  idea      Idea   @relation(fields: [ideaId], references: [id], onDelete: Cascade)
   signalId  String
-  signal    Signal  @relation(fields: [signalId], references: [id], onDelete: Cascade)
+  signal    Signal @relation(fields: [signalId], references: [id], onDelete: Cascade)
   source    String
   url       String
   snippet   String
   relevance Float
+}
+
+model Team {
+  id         String          @id @default(cuid())
+  name       String
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+  members    TeamMember[]
+  executions IdeaExecution[]
+}
+
+model TeamMember {
+  id         String            @id @default(cuid())
+  teamId     String
+  team       Team              @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  name       String
+  email      String
+  role       String
+  initials   String
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+  ownedItems IdeaExecution[]   @relation("ExecutionOwner")
+  updates    ExecutionUpdate[]
+}
+
+model IdeaExecution {
+  id              String            @id @default(cuid())
+  ideaId          String
+  idea            Idea              @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+  teamId          String
+  team            Team              @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  ownerId         String?
+  owner           TeamMember?       @relation("ExecutionOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  status          String
+  stage           String
+  priority        String
+  progress        Int               @default(0)
+  nextStep        String
+  dueDate         DateTime?
+  blockers        String[]
+  collaboratorIds String[]
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  updates         ExecutionUpdate[]
+}
+
+model ExecutionUpdate {
+  id          String        @id @default(cuid())
+  executionId String
+  execution   IdeaExecution @relation(fields: [executionId], references: [id], onDelete: Cascade)
+  authorId    String?
+  author      TeamMember?   @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  body        String
+  createdAt   DateTime      @default(now())
 }

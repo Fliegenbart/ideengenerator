@@ -73,6 +73,55 @@ export type ResearchRunRecord = {
   ideaIds: string[];
 };
 
+export const executionStatusSchema = z.enum(["backlog", "validating", "building", "launched", "paused"]);
+export const executionPrioritySchema = z.enum(["low", "medium", "high"]);
+
+export const executionUpdateSchema = z.object({
+  status: executionStatusSchema.optional(),
+  priority: executionPrioritySchema.optional(),
+  progress: z.coerce.number().min(0).max(100).optional(),
+  ownerId: z.string().optional(),
+  nextStep: z.string().min(2).max(240).optional(),
+  blockers: z.array(z.string().min(1).max(140)).optional(),
+});
+
+export type ExecutionStatus = z.infer<typeof executionStatusSchema>;
+export type ExecutionPriority = z.infer<typeof executionPrioritySchema>;
+export type ExecutionUpdateInput = z.infer<typeof executionUpdateSchema>;
+
+export type TeamMemberRecord = {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  initials: string;
+};
+
+export type TeamRecord = {
+  id: string;
+  name: string;
+  members: TeamMemberRecord[];
+};
+
+export type ExecutionItemRecord = {
+  id: string;
+  ideaId: string;
+  ideaTitle: string;
+  ideaOneLiner: string;
+  score: number;
+  businessModel: string;
+  status: ExecutionStatus;
+  stage: string;
+  priority: ExecutionPriority;
+  progress: number;
+  owner: TeamMemberRecord;
+  collaborators: TeamMemberRecord[];
+  nextStep: string;
+  dueDate: Date;
+  blockers: string[];
+  updatedAt: Date;
+};
+
 type DemoState = {
   founderProfile: FounderProfileInput;
   researchRuns: ResearchRunRecord[];
@@ -80,6 +129,8 @@ type DemoState = {
   clusters: ProblemCluster[];
   ideas: ScoredIdea[];
   refinements: IdeaRefinementResult[];
+  team: TeamRecord;
+  executionItems: ExecutionItemRecord[];
   seeded: boolean;
 };
 
@@ -90,6 +141,34 @@ const DEFAULT_PROFILE: FounderProfileInput = {
   availableHoursPerWeek: 14,
   preferredBusinessModel: "SaaS",
   riskTolerance: "medium",
+};
+
+const DEFAULT_TEAM: TeamRecord = {
+  id: "team-signalideas",
+  name: "SignalIdeas Launch Team",
+  members: [
+    {
+      id: "member-david",
+      name: "David Wegener",
+      email: "david@example.com",
+      role: "Founder",
+      initials: "DW",
+    },
+    {
+      id: "member-product",
+      name: "Mia Product",
+      email: "mia@example.com",
+      role: "Product",
+      initials: "MP",
+    },
+    {
+      id: "member-growth",
+      name: "Noah Growth",
+      email: "noah@example.com",
+      role: "Growth",
+      initials: "NG",
+    },
+  ],
 };
 
 const globalForDemo = globalThis as typeof globalThis & {
@@ -105,6 +184,8 @@ function state() {
       clusters: [],
       ideas: [],
       refinements: [],
+      team: DEFAULT_TEAM,
+      executionItems: [],
       seeded: false,
     };
   }
@@ -135,6 +216,52 @@ function buildCitations(idea: StartupIdea, signals: Signal[]): SourceCitationRec
       snippet: signal.text.length > 180 ? `${signal.text.slice(0, 177)}...` : signal.text,
       relevance: Math.max(0.55, 0.95 - index * 0.06),
     }));
+}
+
+function createExecutionItemsForIdeas(ideas: ScoredIdea[]) {
+  const store = state();
+  const existingIdeaIds = new Set(store.executionItems.map((item) => item.ideaId));
+  const statuses: ExecutionStatus[] = ["validating", "building", "backlog", "paused", "launched"];
+  const stages = ["Problem interviews", "Landing page", "Prototype", "Sales outreach", "Pilot setup"];
+  const priorities: ExecutionPriority[] = ["high", "medium", "medium", "low"];
+
+  const newItems = ideas
+    .filter((idea) => !existingIdeaIds.has(idea.id))
+    .map((idea, index) => {
+      const owner = store.team.members[index % store.team.members.length];
+      const collaborator = store.team.members[(index + 1) % store.team.members.length];
+      const status = statuses[index % statuses.length];
+      const progress =
+        status === "launched" ? 100 : status === "building" ? 62 : status === "validating" ? 38 : status === "paused" ? 18 : 8;
+
+      return {
+        id: `execution-${idea.id}`,
+        ideaId: idea.id,
+        ideaTitle: idea.title,
+        ideaOneLiner: idea.oneLiner,
+        score: idea.score.total,
+        businessModel: idea.businessModel,
+        status,
+        stage: stages[index % stages.length],
+        priority: priorities[index % priorities.length],
+        progress,
+        owner,
+        collaborators: [collaborator],
+        nextStep:
+          status === "building"
+            ? "Ship a clickable workflow and record 3 usability sessions."
+            : status === "validating"
+              ? "Interview 5 target users and capture exact buying language."
+              : status === "launched"
+                ? "Review activation data and pick the next paid channel."
+                : "Define the smallest validation test for this week.",
+        dueDate: new Date(Date.now() + (index + 3) * 24 * 60 * 60 * 1000),
+        blockers: index % 4 === 0 ? ["Needs clearer buyer segment"] : [],
+        updatedAt: new Date(Date.now() - index * 3 * 60 * 60 * 1000),
+      } satisfies ExecutionItemRecord;
+    });
+
+  store.executionItems.push(...newItems);
 }
 
 function asFounderProfile(input: CreateResearchRunInput) {
@@ -209,6 +336,7 @@ async function runPipeline(input: CreateResearchRunInput) {
   store.signals.push(...runSignals);
   store.clusters.push(...runClusters);
   store.ideas.push(...scoredIdeas);
+  createExecutionItemsForIdeas(scoredIdeas);
 
   return { researchRun: run, signals: runSignals, clusters: runClusters, ideas: scoredIdeas };
 }
@@ -372,6 +500,65 @@ export async function setIdeaBookmark(id: string, bookmarked: boolean) {
 
   idea.bookmarked = bookmarked;
   return idea;
+}
+
+export async function listExecutionItems() {
+  await ensureDemoData();
+  const store = state();
+
+  return {
+    team: store.team,
+    executionItems: [...store.executionItems].sort((a, b) => {
+      const priorityOrder: Record<ExecutionPriority, number> = { high: 3, medium: 2, low: 1 };
+      return priorityOrder[b.priority] - priorityOrder[a.priority] || b.score - a.score;
+    }),
+  };
+}
+
+export async function updateExecutionItem(id: string, input: unknown) {
+  await ensureDemoData();
+  const parsed = executionUpdateSchema.parse(input);
+  const store = state();
+  const item = store.executionItems.find((candidate) => candidate.id === id);
+
+  if (!item) {
+    return null;
+  }
+
+  const owner = parsed.ownerId
+    ? store.team.members.find((member) => member.id === parsed.ownerId)
+    : undefined;
+
+  if (parsed.ownerId && !owner) {
+    throw new Error("Unknown team member");
+  }
+
+  if (parsed.status) {
+    item.status = parsed.status;
+  }
+
+  if (parsed.priority) {
+    item.priority = parsed.priority;
+  }
+
+  if (typeof parsed.progress === "number") {
+    item.progress = parsed.progress;
+  }
+
+  if (owner) {
+    item.owner = owner;
+  }
+
+  if (parsed.nextStep) {
+    item.nextStep = parsed.nextStep;
+  }
+
+  if (parsed.blockers) {
+    item.blockers = parsed.blockers;
+  }
+
+  item.updatedAt = new Date();
+  return item;
 }
 
 export function parseRefinementAction(input: unknown) {

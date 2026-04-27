@@ -6,6 +6,7 @@ import {
   BarChart3Icon,
   DatabaseZapIcon,
   LightbulbIcon,
+  ListChecksIcon,
   RadarIcon,
   SearchIcon,
   SettingsIcon,
@@ -17,6 +18,7 @@ const navItems = [
   { href: "/", label: "Dashboard", icon: BarChart3Icon },
   { href: "/generate", label: "Generate", icon: SparklesIcon },
   { href: "/ideas", label: "Ideas", icon: LightbulbIcon },
+  { href: "/execution", label: "Execution", icon: ListChecksIcon },
   { href: "/research-runs", label: "Research", icon: DatabaseZapIcon },
   { href: "/settings", label: "Settings", icon: SettingsIcon },
 ];
