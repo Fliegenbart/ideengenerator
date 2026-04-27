@@ -1,0 +1,158 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String          @id @default(cuid())
+  email          String          @unique
+  name           String?
+  image          String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  founderProfile FounderProfile?
+  researchRuns   ResearchRun[]
+  ideas          Idea[]
+}
+
+model FounderProfile {
+  id                     String   @id @default(cuid())
+  userId                 String   @unique
+  user                   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  skills                 String[]
+  interests              String[]
+  budget                 Int
+  availableHoursPerWeek  Int
+  preferredBusinessModel String
+  riskTolerance          String
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+}
+
+model ResearchRun {
+  id                    String           @id @default(cuid())
+  userId                String?
+  user                  User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
+  topic                 String
+  audience              String?
+  preferredBusinessType String
+  mode                  String
+  status                String
+  progress              Int              @default(0)
+  metadata              Json
+  startedAt             DateTime         @default(now())
+  completedAt           DateTime?
+  signals               Signal[]
+  problemClusters       ProblemCluster[]
+  ideas                 Idea[]
+}
+
+model Signal {
+  id                String           @id
+  researchRunId     String
+  researchRun       ResearchRun      @relation(fields: [researchRunId], references: [id], onDelete: Cascade)
+  source            String
+  title             String
+  text              String
+  url               String
+  author            String?
+  createdAt         DateTime
+  engagementScore   Float
+  rawEngagement     Json
+  entities          String[]
+  sentiment         String
+  sourceReliability Float
+  metadata          Json
+  citations         SourceCitation[]
+}
+
+model ProblemCluster {
+  id                    String      @id
+  researchRunId          String
+  researchRun            ResearchRun @relation(fields: [researchRunId], references: [id], onDelete: Cascade)
+  label                 String
+  problem               String
+  audience              String
+  signalIds             String[]
+  signalCount           Int
+  averageEngagement     Float
+  averageRecencyDays    Float
+  painIntensity         Float
+  frequency             Float
+  willingnessToPay      Float
+  currentWorkarounds    String[]
+  jobsToBeDone          String[]
+  segments              String[]
+  keywords              String[]
+  ideas                 Idea[]
+}
+
+model Idea {
+  id                   String           @id
+  userId               String?
+  user                 User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
+  researchRunId         String
+  researchRun           ResearchRun      @relation(fields: [researchRunId], references: [id], onDelete: Cascade)
+  problemClusterId      String
+  problemCluster        ProblemCluster   @relation(fields: [problemClusterId], references: [id], onDelete: Cascade)
+  title                String
+  oneLiner             String
+  audience             String
+  problem              String
+  insight              String
+  solution             String
+  mvp                  String[]
+  monetization         String[]
+  gtm                  String[]
+  competitors          String[]
+  validationPlan       String[]
+  risks                String[]
+  whyNow               String
+  evidenceSignalIds    String[]
+  businessModel        String
+  buildDifficulty      Int
+  distributionChannels String[]
+  executionPlan7Day    String[]
+  bookmarked           Boolean          @default(false)
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+  score                IdeaScore?
+  refinements          IdeaRefinement[]
+  citations            SourceCitation[]
+}
+
+model IdeaScore {
+  id          String   @id @default(cuid())
+  ideaId      String   @unique
+  idea        Idea     @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+  total       Int
+  components  Json
+  summary     String
+  createdAt   DateTime @default(now())
+}
+
+model IdeaRefinement {
+  id        String   @id @default(cuid())
+  ideaId    String
+  idea      Idea     @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+  action    String
+  title     String
+  content   Json
+  createdAt DateTime @default(now())
+}
+
+model SourceCitation {
+  id        String  @id @default(cuid())
+  ideaId    String
+  idea      Idea    @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+  signalId  String
+  signal    Signal  @relation(fields: [signalId], references: [id], onDelete: Cascade)
+  source    String
+  url       String
+  snippet   String
+  relevance Float
+}
