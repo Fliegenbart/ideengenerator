@@ -9,7 +9,6 @@ export const signalSourceSchema = z.enum([
   "polymarket",
   "web",
   "reviews",
-  "last30days",
 ]);
 
 export const sentimentSchema = z.enum(["positive", "neutral", "negative", "mixed"]);
@@ -89,7 +88,7 @@ export type ProblemCluster = z.infer<typeof problemClusterSchema>;
 export const researchResultSchema = z.object({
   id: z.string().min(1),
   topic: z.string().min(1),
-  mode: z.enum(["mock", "last30days", "web"]),
+  mode: z.enum(["mock", "live", "web"]),
   startedAt: z.date(),
   completedAt: z.date().nullable(),
   signals: z.array(signalSchema),

@@ -20,7 +20,7 @@ SignalIdeas researches a niche, normalizes market/community signals, clusters re
 - Idea detail pages with MVP scope, monetization, GTM, competitors, validation plan, risks, and 7-day plan
 - Idea refinement actions for cheaper build, B2B, consumer, narrow niche, landing copy, MVP list, Reddit post, cold email, and ads
 - Team execution page at `/execution` with owner, status, priority, progress, blockers, and next step tracking
-- Isolated Last30Days adapter boundary
+- Own research adapter layer with mock mode plus optional live Reddit, Hacker News, GitHub, and web-style sources
 
 ## Local Setup
 
@@ -40,24 +40,24 @@ The app also works without a database in local mock mode because the UI and API 
 
 ```bash
 DATABASE_URL="postgresql://postgres:postgres@localhost:5432/signalideas"
-LAST30DAYS_ENABLED=false
-LAST30DAYS_COMMAND=""
-LAST30DAYS_API_URL=""
+SIGNAL_RESEARCH_MODE=mock
+GITHUB_TOKEN=""
 ```
 
-## Last30Days Integration
+## Research Modes
 
-The integration is isolated in `src/services/last30days.ts`.
+SignalIdeas does not require Last30Days.
 
-When `LAST30DAYS_ENABLED=false`, SignalIdeas uses `MockResearchAdapter`.
+When `SIGNAL_RESEARCH_MODE=mock`, SignalIdeas uses realistic local sample signals. This is the recommended setting for demos and early production until persistence and API limits are configured.
 
-When `LAST30DAYS_ENABLED=true`, the service tries:
+When `SIGNAL_RESEARCH_MODE=live`, SignalIdeas uses its own research adapters:
 
-1. `LAST30DAYS_API_URL`: POSTs `{ topic, options }` to an API endpoint.
-2. `LAST30DAYS_COMMAND`: runs a shell command with the topic argument and passes options through `LAST30DAYS_OPTIONS`.
-3. Mock fallback if neither is configured.
+- Hacker News via Algolia's public HN search API
+- GitHub Issues via GitHub Search API
+- Reddit via public Reddit JSON search
+- Web/reviews through the local fallback adapter
 
-The expected external result is JSON with a `signals` array matching the normalized Signal shape from `src/lib/research/types.ts`.
+If a live source fails or returns too little data, the composite adapter fills the run with mock signals so the product flow still completes. `GITHUB_TOKEN` is optional but recommended in live mode to improve GitHub API rate limits.
 
 ## Development Workflow
 
@@ -81,6 +81,6 @@ npm run seed
 - Replace the in-memory demo store with Prisma reads/writes for multi-user persistence.
 - Connect Team, TeamMember, IdeaExecution, and ExecutionUpdate models to real auth roles before inviting external teammates.
 - Configure a real PostgreSQL `DATABASE_URL`.
-- Configure Last30Days via API or command if available.
+- Keep `SIGNAL_RESEARCH_MODE=mock` for predictable demos, or switch to `live` when you are ready to use public source APIs.
 - Add real OpenAI-compatible provider credentials when replacing deterministic local generators.
 - On Vercel, set environment variables in the project settings before using database-backed mode.

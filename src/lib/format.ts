@@ -23,7 +23,6 @@ export function sourceLabel(source: string) {
     polymarket: "Polymarket",
     web: "Web",
     reviews: "Reviews",
-    last30days: "Last30Days",
   };
 
   return labels[source] ?? source;

@@ -59,7 +59,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <div className="mt-auto rounded-lg border bg-background/70 p-3 text-xs text-muted-foreground">
           <div className="font-medium text-foreground">Mock mode active</div>
           <p className="mt-1 leading-5">
-            Local research uses realistic sample signals until Last30Days is enabled.
+            Local research uses realistic sample signals. Switch to live adapters when you are ready.
           </p>
         </div>
       </aside>

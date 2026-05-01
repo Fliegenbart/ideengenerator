@@ -32,7 +32,7 @@ export default async function DashboardPage() {
         <div className="flex flex-col justify-center gap-5 rounded-lg border bg-card p-6">
           <Badge variant="secondary" className="w-fit">
             <RadioTowerIcon data-icon="inline-start" />
-            Last 30 days demand engine
+            Recent demand engine
           </Badge>
           <div>
             <h1 className="max-w-3xl font-heading text-3xl font-semibold tracking-normal sm:text-4xl">

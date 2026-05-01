@@ -130,7 +130,7 @@ export function GenerateForm() {
       <div className="flex flex-wrap items-center gap-3">
         <Button type="submit" disabled={isPending}>
           {isPending ? <Loader2Icon data-icon="inline-start" /> : <RadarIcon data-icon="inline-start" />}
-          {isPending ? "Researching" : "Run last 30 days research"}
+          {isPending ? "Researching" : "Run demand research"}
         </Button>
         <p className="text-sm text-muted-foreground">
           Mock mode returns a complete run immediately.

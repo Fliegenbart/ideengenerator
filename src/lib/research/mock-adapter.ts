@@ -25,7 +25,6 @@ const SOURCE_WEIGHTS: Record<SignalSource, number> = {
   polymarket: 0.68,
   web: 0.7,
   reviews: 0.74,
-  last30days: 0.82,
 };
 
 const SOURCE_TEMPLATES: Array<{

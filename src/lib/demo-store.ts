@@ -8,8 +8,8 @@ import {
   type RefinementAction,
 } from "@/lib/ideas/refinement";
 import { clusterProblemSignals } from "@/lib/processing/clustering";
-import { Last30DaysAdapter } from "@/lib/research/last30days-adapter";
 import { MockResearchAdapter } from "@/lib/research/mock-adapter";
+import { CompositeResearchAdapter } from "@/lib/research/placeholders";
 import {
   businessTypeSchema,
   researchRequestSchema,
@@ -32,7 +32,7 @@ export const ideaFilterSchema = z.object({
   maxDifficulty: z.coerce.number().min(0).max(100).optional(),
   businessModel: businessTypeSchema.optional(),
   source: z
-    .enum(["reddit", "hackernews", "youtube", "twitter", "github", "polymarket", "web", "reviews", "last30days"])
+    .enum(["reddit", "hackernews", "youtube", "twitter", "github", "polymarket", "web", "reviews"])
     .optional(),
 });
 
@@ -194,8 +194,8 @@ function state() {
 }
 
 function adapterForMode() {
-  return process.env.LAST30DAYS_ENABLED === "true"
-    ? new Last30DaysAdapter()
+  return process.env.SIGNAL_RESEARCH_MODE === "live"
+    ? new CompositeResearchAdapter()
     : new MockResearchAdapter();
 }
 
