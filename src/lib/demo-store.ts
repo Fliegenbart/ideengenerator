@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { generateOpenAIIdeaPipeline } from "@/lib/ai/openai-idea-engine";
 import { normalizeFounderProfileInput, type FounderProfileInput } from "@/lib/founder-fit/founder-fit";
 import { generateIdeasFromClusters, type StartupIdea } from "@/lib/ideas/generator";
 import {
@@ -279,19 +280,33 @@ async function runPipeline(input: CreateResearchRunInput) {
   const parsed = createResearchRunInputSchema.parse(input);
   const founder = asFounderProfile(parsed);
   const researchRequest: ResearchRequest = researchRequestSchema.parse(parsed);
-  const result = await adapterForMode().research(researchRequest);
+  const aiResult = await generateOpenAIIdeaPipeline(researchRequest, founder).catch((error) => {
+    console.error("OpenAI idea engine failed, falling back to local engine.", error);
+    return null;
+  });
+  const result = aiResult
+    ? {
+        id: aiResult.runId,
+        mode: "openai",
+        startedAt: new Date(),
+        completedAt: new Date(),
+      }
+    : await adapterForMode().research(researchRequest);
   const runId = result.id;
 
-  const runSignals = result.signals;
-  const runClusters = clusterProblemSignals(runSignals).map((cluster) => withRunId(runId, cluster));
-  const ideas = generateIdeasFromClusters(
-    runClusters.map((cluster) => ({
-      ...cluster,
-      signalIds: cluster.signalIds,
-    })),
-    founder,
-    10
-  );
+  const runSignals = aiResult?.signals ?? ("signals" in result ? result.signals : []);
+  const runClusters =
+    aiResult?.clusters ?? clusterProblemSignals(runSignals).map((cluster) => withRunId(runId, cluster));
+  const ideas =
+    aiResult?.ideas ??
+    generateIdeasFromClusters(
+      runClusters.map((cluster) => ({
+        ...cluster,
+        signalIds: cluster.signalIds,
+      })),
+      founder,
+      10
+    );
 
   const scoredIdeas = ideas
     .map((idea) => {

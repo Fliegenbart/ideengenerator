@@ -88,7 +88,7 @@ export type ProblemCluster = z.infer<typeof problemClusterSchema>;
 export const researchResultSchema = z.object({
   id: z.string().min(1),
   topic: z.string().min(1),
-  mode: z.enum(["mock", "live", "web"]),
+  mode: z.enum(["mock", "live", "web", "openai"]),
   startedAt: z.date(),
   completedAt: z.date().nullable(),
   signals: z.array(signalSchema),

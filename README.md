@@ -1,20 +1,22 @@
 # SignalIdeas
 
-AI-powered startup idea generation from recent real-world demand signals.
+AI-powered startup idea generation and execution tracking.
 
-SignalIdeas researches a niche, normalizes market/community signals, clusters recurring problems, generates structured startup ideas, scores them, and lets you refine ideas into validation assets.
+SignalIdeas turns a topic, target audience, skills, and budget into structured startup ideas, scores them, and lets a team track execution progress.
 
 ## What Works In This MVP
 
 - Founder profile with skills, interests, budget, hours, business model, and risk tolerance
-- Mock demand research for:
+- OpenAI-powered idea generation when `OPENAI_API_KEY` is configured
+- Mock idea generation for demos and local development when no API key is configured
+- Built-in sample niches for:
   - AI video tools
   - creator economy
   - solo founder productivity
   - B2B compliance
   - developer tools
   - local service businesses
-- Normalized signal model across Reddit, Hacker News, YouTube, X/Twitter, GitHub, Polymarket, and web-style sources
+- Normalized signal model so AI-generated or source-based evidence can use the same UI
 - Problem clustering, idea generation, scoring, founder-fit ranking
 - Evidence drawer with source snippets
 - Idea detail pages with MVP scope, monetization, GTM, competitors, validation plan, risks, and 7-day plan
@@ -40,24 +42,31 @@ The app also works without a database in local mock mode because the UI and API 
 
 ```bash
 DATABASE_URL="postgresql://postgres:postgres@localhost:5432/signalideas"
+OPENAI_API_KEY=""
+OPENAI_MODEL="gpt-4o-mini"
+AI_IDEA_ENGINE="openai"
 SIGNAL_RESEARCH_MODE=mock
 GITHUB_TOKEN=""
 ```
 
-## Research Modes
+## AI Idea Engine
 
 SignalIdeas does not require Last30Days.
 
-When `SIGNAL_RESEARCH_MODE=mock`, SignalIdeas uses realistic local sample signals. This is the recommended setting for demos and early production until persistence and API limits are configured.
+The simplest production setup is:
 
-When `SIGNAL_RESEARCH_MODE=live`, SignalIdeas uses its own research adapters:
+```bash
+OPENAI_API_KEY="sk-..."
+OPENAI_MODEL="gpt-4o-mini"
+AI_IDEA_ENGINE="openai"
+SIGNAL_RESEARCH_MODE=mock
+```
 
-- Hacker News via Algolia's public HN search API
-- GitHub Issues via GitHub Search API
-- Reddit via public Reddit JSON search
-- Web/reviews through the local fallback adapter
+With this setup, every generate request asks OpenAI to create a complete idea run: demand-style signals, problem clusters, startup ideas, MVP scope, monetization, GTM, risks, and a 7-day plan.
 
-If a live source fails or returns too little data, the composite adapter fills the run with mock signals so the product flow still completes. `GITHUB_TOKEN` is optional but recommended in live mode to improve GitHub API rate limits.
+If `OPENAI_API_KEY` is missing, the app automatically falls back to local mock ideas so the product still works.
+
+`SIGNAL_RESEARCH_MODE=live` is optional. It uses Hacker News, GitHub Issues, Reddit, and web/review fallback adapters. For your current goal, OpenAI mode plus mock fallback is simpler.
 
 ## Development Workflow
 
@@ -81,6 +90,6 @@ npm run seed
 - Replace the in-memory demo store with Prisma reads/writes for multi-user persistence.
 - Connect Team, TeamMember, IdeaExecution, and ExecutionUpdate models to real auth roles before inviting external teammates.
 - Configure a real PostgreSQL `DATABASE_URL`.
-- Keep `SIGNAL_RESEARCH_MODE=mock` for predictable demos, or switch to `live` when you are ready to use public source APIs.
-- Add real OpenAI-compatible provider credentials when replacing deterministic local generators.
+- Set `OPENAI_API_KEY` for real AI-generated ideas.
+- Keep `SIGNAL_RESEARCH_MODE=mock` unless you explicitly want public source adapters later.
 - On Vercel, set environment variables in the project settings before using database-backed mode.

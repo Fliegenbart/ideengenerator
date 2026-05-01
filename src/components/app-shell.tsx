@@ -57,9 +57,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           })}
         </nav>
         <div className="mt-auto rounded-lg border bg-background/70 p-3 text-xs text-muted-foreground">
-          <div className="font-medium text-foreground">Mock mode active</div>
+          <div className="font-medium text-foreground">KI-Ideenmodus</div>
           <p className="mt-1 leading-5">
-            Local research uses realistic sample signals. Switch to live adapters when you are ready.
+            Mit OpenAI API Key erzeugt die App neue Ideen. Ohne Key nutzt sie sichere Demo-Daten.
           </p>
         </div>
       </aside>

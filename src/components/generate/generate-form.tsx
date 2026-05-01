@@ -55,26 +55,26 @@ export function GenerateForm() {
       <FieldGroup>
         <div className="grid gap-4 md:grid-cols-2">
           <Field>
-            <FieldLabel htmlFor="topic">Niche or topic</FieldLabel>
-            <Input id="topic" name="topic" placeholder="AI video tools" required />
-            <FieldDescription>SignalIdeas researches recent demand around this area.</FieldDescription>
+            <FieldLabel htmlFor="topic">Thema oder Nische</FieldLabel>
+            <Input id="topic" name="topic" placeholder="KI-Video-Tools" required />
+            <FieldDescription>SignalIdeas erzeugt dazu neue, bewertete Startup-Ideen.</FieldDescription>
           </Field>
           <Field>
-            <FieldLabel htmlFor="audience">Target audience</FieldLabel>
+            <FieldLabel htmlFor="audience">Zielgruppe</FieldLabel>
             <Input
               id="audience"
               name="audience"
-              placeholder="creator teams, compliance leads..."
+              placeholder="Creator-Teams, Handwerker, Compliance-Leads..."
               required
             />
           </Field>
         </div>
         <Field>
-          <FieldLabel htmlFor="skills">Your skills</FieldLabel>
+          <FieldLabel htmlFor="skills">Deine Fähigkeiten</FieldLabel>
           <Textarea
             id="skills"
             name="skills"
-            placeholder="TypeScript, sales, automation, compliance, content marketing"
+            placeholder="Vertrieb, Automatisierung, Design, Programmierung, Content Marketing"
             required
           />
         </Field>
@@ -84,7 +84,7 @@ export function GenerateForm() {
             <Input id="budget" name="budget" type="number" min="0" defaultValue="3000" />
           </Field>
           <Field>
-            <FieldLabel htmlFor="availableHoursPerWeek">Hours per week</FieldLabel>
+            <FieldLabel htmlFor="availableHoursPerWeek">Stunden pro Woche</FieldLabel>
             <Input
               id="availableHoursPerWeek"
               name="availableHoursPerWeek"
@@ -95,7 +95,7 @@ export function GenerateForm() {
             />
           </Field>
           <Field>
-            <FieldLabel htmlFor="preferredBusinessType">Business type</FieldLabel>
+            <FieldLabel htmlFor="preferredBusinessType">Geschäftsmodell</FieldLabel>
             <select
               id="preferredBusinessType"
               name="preferredBusinessType"
@@ -113,16 +113,16 @@ export function GenerateForm() {
           </Field>
         </div>
         <Field>
-          <FieldLabel htmlFor="riskTolerance">Risk tolerance</FieldLabel>
+          <FieldLabel htmlFor="riskTolerance">Risikobereitschaft</FieldLabel>
           <select
             id="riskTolerance"
             name="riskTolerance"
             defaultValue="medium"
             className="h-8 max-w-xs rounded-lg border border-input bg-background px-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
           >
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
+            <option value="low">Niedrig</option>
+            <option value="medium">Mittel</option>
+            <option value="high">Hoch</option>
           </select>
         </Field>
       </FieldGroup>
@@ -130,10 +130,10 @@ export function GenerateForm() {
       <div className="flex flex-wrap items-center gap-3">
         <Button type="submit" disabled={isPending}>
           {isPending ? <Loader2Icon data-icon="inline-start" /> : <RadarIcon data-icon="inline-start" />}
-          {isPending ? "Researching" : "Run demand research"}
+          {isPending ? "Ideen werden erzeugt" : "Neue Ideen erzeugen"}
         </Button>
         <p className="text-sm text-muted-foreground">
-          Mock mode returns a complete run immediately.
+          Mit OpenAI API Key erzeugt die KI neue Ideen. Ohne Key nutzt die App Demo-Daten.
         </p>
       </div>
     </form>
