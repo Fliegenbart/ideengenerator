@@ -19,23 +19,23 @@ export function IdeaCard({ idea }: { idea: ScoredIdea }) {
   const sources = [...new Set(idea.citations.map((citation) => citation.source))].slice(0, 4);
 
   return (
-    <Card className="rounded-lg">
+    <Card className="rounded-[24px]">
       <CardHeader>
         <CardTitle>
-          <Link href={`/ideas/${idea.id}`} className="hover:underline">
+          <Link href={`/ideas/${idea.id}`} className="hover:text-primary hover:underline">
             {idea.title}
           </Link>
         </CardTitle>
         <CardDescription>{idea.oneLiner}</CardDescription>
         <CardAction>
-          <div className="flex size-12 items-center justify-center rounded-lg bg-primary text-lg font-semibold text-primary-foreground">
+          <div className="flex size-14 items-center justify-center rounded-2xl bg-primary text-lg font-semibold text-primary-foreground shadow-[0_12px_28px_rgba(13,148,136,0.22)]">
             {formatScore(idea.score.total)}
           </div>
         </CardAction>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         <div className="flex flex-wrap gap-2">
-          <Badge variant="secondary">{idea.businessModel}</Badge>
+          <Badge variant="secondary" className="bg-secondary/80">{idea.businessModel}</Badge>
           <Badge variant="outline">
             <GaugeIcon data-icon="inline-start" />
             Fit {idea.fitScore}
@@ -50,7 +50,9 @@ export function IdeaCard({ idea }: { idea: ScoredIdea }) {
             </Badge>
           ))}
         </div>
-        <p className="text-sm leading-6 text-muted-foreground">{idea.insight}</p>
+        <div className="rounded-2xl bg-muted/60 p-4">
+          <p className="text-sm leading-6 text-muted-foreground">{idea.insight}</p>
+        </div>
       </CardContent>
       <CardFooter className="justify-between gap-2">
         <EvidenceDrawer title={idea.title} citations={idea.citations} />
