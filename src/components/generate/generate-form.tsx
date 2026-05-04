@@ -51,7 +51,7 @@ export function GenerateForm() {
   }
 
   return (
-    <form onSubmit={submit} className="flex flex-col gap-5 rounded-lg border bg-card p-5">
+    <form onSubmit={submit} className="surface-panel flex flex-col gap-5 rounded-[34px] border border-border/70 p-5 sm:p-6">
       <FieldGroup>
         <div className="grid gap-4 md:grid-cols-2">
           <Field>
@@ -100,7 +100,7 @@ export function GenerateForm() {
               id="preferredBusinessType"
               name="preferredBusinessType"
               defaultValue="SaaS"
-              className="h-8 rounded-lg border border-input bg-background px-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+              className="h-10 rounded-xl border border-input bg-background/80 px-3 text-sm outline-none transition-all focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
             >
               <option value="SaaS">SaaS</option>
               <option value="AI tool">AI tool</option>
@@ -118,7 +118,7 @@ export function GenerateForm() {
             id="riskTolerance"
             name="riskTolerance"
             defaultValue="medium"
-            className="h-8 max-w-xs rounded-lg border border-input bg-background px-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+            className="h-10 max-w-xs rounded-xl border border-input bg-background/80 px-3 text-sm outline-none transition-all focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
           >
             <option value="low">Niedrig</option>
             <option value="medium">Mittel</option>
@@ -128,12 +128,12 @@ export function GenerateForm() {
       </FieldGroup>
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
       <div className="flex flex-wrap items-center gap-3">
-        <Button type="submit" disabled={isPending}>
+        <Button type="submit" size="lg" disabled={isPending}>
           {isPending ? <Loader2Icon data-icon="inline-start" /> : <RadarIcon data-icon="inline-start" />}
-          {isPending ? "Ideen werden erzeugt" : "Neue Ideen erzeugen"}
+          {isPending ? "Ideen werden gemischt" : "Ideen mischen"}
         </Button>
         <p className="text-sm text-muted-foreground">
-          Mit OpenAI API Key erzeugt die KI neue Ideen. Ohne Key nutzt die App Demo-Daten.
+          Mit OpenAI API Key entstehen neue Vorschlaege. Ohne Key bleibt der Demo-Modus aktiv.
         </p>
       </div>
     </form>

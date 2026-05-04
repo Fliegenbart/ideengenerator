@@ -19,7 +19,7 @@ export function IdeaCard({ idea }: { idea: ScoredIdea }) {
   const sources = [...new Set(idea.citations.map((citation) => citation.source))].slice(0, 4);
 
   return (
-    <Card className="rounded-[24px]">
+    <Card className="group rounded-[28px] transition-transform duration-300 hover:-translate-y-1">
       <CardHeader>
         <CardTitle>
           <Link href={`/ideas/${idea.id}`} className="hover:text-primary hover:underline">
@@ -28,7 +28,7 @@ export function IdeaCard({ idea }: { idea: ScoredIdea }) {
         </CardTitle>
         <CardDescription>{idea.oneLiner}</CardDescription>
         <CardAction>
-          <div className="flex size-14 items-center justify-center rounded-2xl bg-primary text-lg font-semibold text-primary-foreground shadow-[0_12px_28px_rgba(13,148,136,0.22)]">
+          <div className="flex size-14 items-center justify-center rounded-[22px] bg-primary text-lg font-semibold text-primary-foreground shadow-[0_12px_28px_rgba(13,148,136,0.22)] transition-transform duration-300 group-hover:rotate-3">
             {formatScore(idea.score.total)}
           </div>
         </CardAction>
@@ -50,7 +50,7 @@ export function IdeaCard({ idea }: { idea: ScoredIdea }) {
             </Badge>
           ))}
         </div>
-        <div className="rounded-2xl bg-muted/60 p-4">
+        <div className="rounded-[24px] border border-white/70 bg-muted/60 p-4">
           <p className="text-sm leading-6 text-muted-foreground">{idea.insight}</p>
         </div>
       </CardContent>
